@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comment Filter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        textarea {
+            width: 50%;
+            height: 100px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        .disabled {
+            background-color: gray;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Comment Filter</h2>
+    <textarea id="commentBox" placeholder="Write your comment..." onkeyup="checkComment()"></textarea>
+    <br>
+    <button id="sendBtn" disabled class="disabled">Send</button>
+    <p id="message"></p>
+
+    <script>
+        function checkComment() {
+            let comment = document.getElementById("commentBox").value;
+            let sendBtn = document.getElementById("sendBtn");
+            let message = document.getElementById("message");
+
+            fetch("http://localhost:5000/check-comment", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text: comment })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.allowed) {
+                    sendBtn.disabled = false;
+                    sendBtn.classList.remove("disabled");
+                    message.style.color = "green";
+                } else {
+                    sendBtn.disabled = true;
+                    sendBtn.classList.add("disabled");
+                    message.style.color = "red";
+                }
+                message.innerText = data.message;
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+
+</body>
+</html>
